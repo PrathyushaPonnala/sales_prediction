@@ -17,4 +17,4 @@
 2. [Prophet – Open-source forecasting library by Meta](https://facebook.github.io/prophet/docs/quick_start.html#python-api)
 3. [LightGBM – Official Documentation](https://lightgbm.readthedocs.io/en/stable)
 4. [Time Series Forecasting using LightGBM – Geeks for Geeks](https://www.geeksforgeeks.org/machine-learning/time-series-using-lightgbm)
-
+5. [Ensembling learning - Kaggle](https://www.kaggle.com/code/pavansanagapati/ensemble-learning-techniques-tutorial)
