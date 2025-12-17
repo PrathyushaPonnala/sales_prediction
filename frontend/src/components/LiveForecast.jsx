@@ -1,88 +1,94 @@
 import React, { useState } from "react";
+import { api, endpoints } from "../services/api.js";
 import {
   Box,
   Button,
   TextField,
   Typography,
-  List,
-  ListItem,
   Paper,
-  Stack,
+  CircularProgress,
+  Alert,
+  Fade,
 } from "@mui/material";
-import { dummyLiveForecast } from "../dummyData.js";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function LiveForecast() {
+  const [productId, setProductId] = useState("");
+  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
-  const runDummyForecast = () => {
-    setResult(dummyLiveForecast);
+  const handleLiveUpdate = async () => {
+    setLoading(true);
+    setResult(null);
+    try {
+      const res = await api.post(endpoints.live(productId));
+      setResult(res.data);
+    } catch (err) {
+      alert("Error triggering live forecast. Ensure product history exists.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #f3e5f5, #ede7f6)",
-        p: 4,
-      }}
-    >
-      {/* Page Header */}
+    <Box sx={{ p: 4, minHeight: "100vh", bgcolor: "#f3e5f5" }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Live Forecast
+        Live Model Retraining
       </Typography>
-      <Typography color="text.secondary" mb={3}>
-        Trigger live prediction pipeline for selected product
-      </Typography>
+      
+      <Alert severity="info" sx={{ mb: 3 }}>
+        Note: Future updates will allow uploading CSVs for new products directly here. 
+        Currently, this triggers a re-train on existing database history.
+      </Alert>
 
-      {/* Card */}
-      <Paper elevation={4} sx={{ p: 3, borderRadius: 3, maxWidth: 600 }}>
-        {/* Controls */}
-        <Stack direction="row" spacing={2} mb={4}>
+      <Paper sx={{ p: 4, maxWidth: 800, mx: "auto", textAlign: "center" }}>
+        <AutoFixHighIcon sx={{ fontSize: 60, color: "secondary.main", mb: 2 }} />
+        
+        <Box sx={{ display: "flex", gap: 2, justifyContent: "center", mb: 4 }}>
           <TextField
             label="Product ID"
-            value="P12"
-            disabled
-            size="small"
+            value={productId}
+            onChange={(e) => setProductId(e.target.value)}
+            disabled={loading}
           />
           <Button
             variant="contained"
             color="secondary"
-            onClick={runDummyForecast}
-            sx={{ px: 4 }}
+            size="large"
+            onClick={handleLiveUpdate}
+            disabled={loading || !productId}
+            startIcon={loading && <CircularProgress size={20} color="inherit" />}
           >
-            Run Dummy Forecast
+            {loading ? "Retraining Model..." : "Generate Live Forecast"}
           </Button>
-        </Stack>
+        </Box>
 
-        {/* Result */}
-        {result && (
-          <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight="bold"
-              color="success.main"
-              mb={2}
-            >
-              {result.message}
-            </Typography>
-
-            <Typography variant="subtitle2" mb={1}>
-              Pipeline Steps Executed:
-            </Typography>
-
-            <List
-              sx={{
-                backgroundColor: "#f9f9f9",
-                borderRadius: 2,
-                px: 2,
-              }}
-            >
-              {result.steps_executed.map((step, i) => (
-                <ListItem key={i}>• {step}</ListItem>
-              ))}
-            </List>
+        {/* Results Section */}
+        <Fade in={!!result}>
+          <Box sx={{ mt: 4, textAlign: 'left' }}>
+            {result && (
+              <>
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  {result.message}
+                </Alert>
+                
+                <Typography variant="h6" gutterBottom>
+                  New Forecast Preview (Next 2 Years)
+                </Typography>
+                <Box sx={{ height: 200, width: '100%', bgcolor: '#fafafa', p: 1, borderRadius: 2 }}>
+                  <ResponsiveContainer>
+                    <LineChart data={result.forecast}>
+                       <XAxis dataKey="date" hide />
+                       <Tooltip />
+                       <Line type="monotone" dataKey="sales" stroke="#9c27b0" strokeWidth={2} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              </>
+            )}
           </Box>
-        )}
+        </Fade>
       </Paper>
     </Box>
   );
