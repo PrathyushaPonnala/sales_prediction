@@ -86,6 +86,32 @@ Metrics are selected to reflect **real business impact**.
 
 ---
 
+##  ✨To run Locally: (Follow the below steps)
+### Prerequisites:
+Ensure `uv` is installed by going to this link 👉 [uv installation](https://docs.astral.sh/uv/getting-started/installation/), `Python version >=3.11` at [python installation](https://www.python.org/downloads/) and `Postgresql version >=17` [DB Installation](https://www.postgresql.org/download/)
+1. open your project directory
+2. `git clone https://github.com/Pramod-325/sales_prediction.git`
+
+In the backend folder create a `.env` file with your custom credentials as below: <br>
+
+```
+DATABASE_URL="postgresql://db_username:db_password@localhost:5432/sales_db"
+APP_ENV="development"
+```
+
+Now run below commands in two terminals separately for frontend and backend
+
+
+| in Frontend Terminal |in Backend Terminal |
+|--------|---------|
+|`cd frontend`|`cd backend`|
+|`npm install`|`uv sync`|
+|`npm run dev`|`uv run prisma generate`|
+||`uv run prisma db push`|
+||`uv run seed.py`|
+||`uv run uvicorn main:app --reload`|
+
+
 ##  API Endpoints
 
 | Method | Endpoint | Description |
